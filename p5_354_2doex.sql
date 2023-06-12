@@ -2,15 +2,19 @@ use master;
 	drop  table nombre
 	
 	DECLARE @nombre1 varchar(20),
-			@nombre2 varchar(20),
-            @long int,
-            @contador int,
+		@nombre2 varchar(20),
+            	@long int,
+            	@contador int,
         	@caracter varchar(1),
-            @sql nvarchar(2000),
-            @columna varchar(2),
-			@parametros nvarchar(100),
-			@apoyo varchar(20),
-			@resultado int
+            	@sql nvarchar(2000),
+		@sql2 nvarchar(2000),
+        	@columna varchar(2),
+		@variable int,
+		@i int,
+		@var varchar(2),
+		@parametros nvarchar(100),
+		@apoyo varchar(20),
+		@resultado int
 
             
 	set @nombre1= 'MARTHA'
@@ -83,3 +87,26 @@ use master;
     AND ORDINAL_POSITION>=1
     and LEFT(COLUMN_NAME,1)=@caracter
     ORDER BY ORDINAL_POSITION
+
+	    
+--contador de la cantidad de columnas
+create table suma(
+datos int
+);
+set @variable=(select count(column_name) 
+				from information_schema.columns
+				where table_name='nombre')
+set @i=1
+while @i<=@variable
+begin
+	set @var =(select column_name from INFORMATION_SCHEMA.COLUMNS where table_name='nombre' and ORDINAL_POSITION=@i) 
+	set @sql = 'SELECT cast(sum('+@var+') as int) FROM nombre'
+	set @sql2 = 'INSERT INTO suma(datos) VALUES (('+@sql+'));'
+	EXEC sp_executesql @sql2
+	set @i=@i+1
+end
+--comparacion de cadenas--
+if exists (select * from suma where datos is null)
+	print 'No son iguales.'
+else
+	print 'Son iguales'
